@@ -15,6 +15,7 @@ gwt-unitCache/
 war/WEB-INF/deploy/
 war/WEB-INF/classes/
 
+<<<<<<< HEAD
 #compilation logs
 .gwt/
 
@@ -31,3 +32,5 @@ www-test/
 .project
 .settings/
 .classpath
+=======
+>>>>>>> c0763fc81caafaafbd4d3e1f1751986f7154a591
