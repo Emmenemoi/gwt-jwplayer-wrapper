@@ -127,7 +127,10 @@ public class JWPlayer extends Widget {
 
 	protected void onUnload() {
 		// GWT.log("onUnload", null);
-		getElement().removeChild(DOM.getFirstChild(getElement()));
+		Element firstChild = DOM.getFirstChild(getElement());
+		if (firstChild != null) {
+			getElement().removeChild(DOM.getFirstChild(getElement()));
+		}
 		playerLoaded = false;
 		super.onUnload();
 	}
@@ -151,6 +154,20 @@ public class JWPlayer extends Widget {
 			options.file = url;
 			if (scriptLoaded)
 				initPlayer();
+		}
+	}
+	
+	public void stop() {
+		if (playerLoaded) {
+			_stop();
+		} else {
+			options.file = null;
+		}
+	}
+	
+	public void pause() {
+		if (playerLoaded) {
+			_pause();
 		}
 	}
 	
@@ -283,6 +300,17 @@ public class JWPlayer extends Widget {
 	private native void _loadURL(String url) /*-{
 		
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.load([url]);
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);
+	}-*/;
+	private native void _stop() /*-{
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.stop();
+	}-*/;
+	private native void _pause() /*-{
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.pause(true);
+	}-*/;
+	private native void play() /*-{
+	
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);
 	}-*/;
 	
 	private native void _applySize() /*-{
