@@ -1,18 +1,26 @@
 package fr.emmenemoi.gwt.widgets.jwplayer.client;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.ScriptInjector;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
-public class JWPlayer extends Widget {
+import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerEvent.JWPlayerEventHandler;
+
+public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
+	
+	private Logger logger = Logger.getLogger(JWPlayer.class.getName());
 	
 	private JWPlayerOptions options;
 
@@ -215,35 +223,38 @@ public class JWPlayer extends Widget {
 	
 	/*************** EVENTS WRAPPER *******************/
 	public void onPause(JWPlayerState state) {
-		GWT.log("JWPlayer Pause from "+ state, null);
+		logger.log(Level.FINE , "JWPlayer Pause from "+ state.getOldState());
+		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onIdle(JWPlayerState state) {
-		GWT.log("JWPlayer Idle from "+ state, null);
+		logger.log(Level.FINE , "JWPlayer Idle from "+ state.getOldState());
+		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onBuffer(JWPlayerState state) {
-		GWT.log("JWPlayer buffer from "+ state, null);
+		logger.log(Level.FINE , "JWPlayer buffer from "+ state.getOldState());
+		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onError(String message) {
-		GWT.log("JWPlayer Error from "+ message, null);
+		logger.log(Level.FINE , "JWPlayer Error from "+ message);
 	}
 	
 	public void onReady() {
-		GWT.log("JWPlayer Ready", null);
+		logger.log(Level.FINE , "JWPlayer Ready");
 	}
 	
 	public void onComplete() {
-		GWT.log("JWPlayer complete", null);
+		logger.log(Level.FINE , "JWPlayer complete");
 	}
 	
 	public void onMetadata(JsArrayString meta) {
-		GWT.log("JWPlayer Metadata from "+ meta, null);
+		logger.log(Level.FINE , "JWPlayer Metadata from "+ meta);
 	}
 	
 	public void onPlayerMediaMeta(JWPlayerMediaMeta meta) {
-		GWT.log("JWPlayer PlayerMediaMeta from "+ meta, null);
+		logger.log(Level.FINE , "JWPlayer PlayerMediaMeta from "+ meta);
 	}
 
 	/**************** NATIVE WRAPPER *******************/
@@ -325,4 +336,10 @@ public class JWPlayer extends Widget {
 	private native int _getHeight() /*-{
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getHeight();
 	}-*/;
+
+
+	@Override
+	public HandlerRegistration addJWPlayerEventHandler(
+			JWPlayerEventHandler handler) {
+		return this.addHandler(handler, JWPlayerEvent.TYPE);	}
 }
