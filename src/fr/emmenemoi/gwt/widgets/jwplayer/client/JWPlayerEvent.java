@@ -13,11 +13,16 @@ public class JWPlayerEvent extends GwtEvent<JWPlayerEvent.JWPlayerEventHandler>
 	}
 	
 	private JWPlayerState state;
+	private JWPlayerMediaMeta playerMeta;
 	
 	public JWPlayerEvent(JWPlayerState state) {
 		this.state = state;
 	}
 
+	public JWPlayerEvent(JWPlayerState state, JWPlayerMediaMeta playerMeta) {
+		this.state = state;
+		this.playerMeta = playerMeta;
+	}
     @Override
     public com.google.gwt.event.shared.GwtEvent.Type<JWPlayerEventHandler> getAssociatedType() {
         return TYPE;
@@ -42,6 +47,16 @@ public class JWPlayerEvent extends GwtEvent<JWPlayerEvent.JWPlayerEventHandler>
 			return State.valueOf(state.getNewState());
 		}
 		return null;
+	}
+
+	@Override
+	public JWPlayerMediaMeta getPlayerMeta() {
+		return this.playerMeta;
+	}
+
+	@Override
+	public boolean hasMeta() {
+		return this.playerMeta != null;
 	}
 
 }
