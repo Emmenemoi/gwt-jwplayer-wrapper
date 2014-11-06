@@ -9,4 +9,8 @@ public interface JWPlayerInfos {
 	public State getOldState();
 
 	public State getNewState();
+	
+	public JWPlayerMediaMeta getPlayerMeta();
+	
+	public boolean hasMeta();
 }

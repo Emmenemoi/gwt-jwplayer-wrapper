@@ -27,8 +27,8 @@ class JWPlayerMediaMetaJso extends JavaScriptObject implements JWPlayerMediaMeta
 
 	public final native int 	getBandwidth() /*-{ 	return this.bandwidth; }-*/;
 	public final native String 	getCurrentLevel() /*-{ 	return this.currentLevel; }-*/;
-	public final native int 	getDroppedFrames() /*-{ return this.currentLevel; }-*/;
-	public final native int 	getMediaWidth() /*-{ 	return this.currentLevel; }-*/;
+	public final native int 	getDroppedFrames() /*-{ return this.droppedFrames; }-*/;
+	public final native int 	getMediaWidth() /*-{ 	return this.width; }-*/;
 }
 
 /** Any number of non-JSO types may implement the WebcamStreamEvent interface. */
@@ -39,7 +39,7 @@ class JWPlayerMediaMetaImpl implements JWPlayerMediaMeta {
   	private final	int		width;
 
   	public JWPlayerMediaMetaImpl(int bandwidth, String currentLevel, int droppedFrames, int width) {
-	  this.bandwidth = bandwidth;
+  		this.bandwidth = bandwidth;
     	this.currentLevel = currentLevel;
     	this.droppedFrames = droppedFrames;
     	this.width = width;
@@ -64,10 +64,5 @@ class JWPlayerMediaMetaImpl implements JWPlayerMediaMeta {
 	public int getMediaWidth() {
 		return this.width;
 	}
-
-  /*
-  public String toString() {
-	  return "{ oldstate: "+this.getOldState()+" , newstate: "+this.getOldState()+"}"; 
-  }
-  */
+  
 }

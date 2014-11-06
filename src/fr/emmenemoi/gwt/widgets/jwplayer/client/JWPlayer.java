@@ -11,12 +11,15 @@ import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerEvent.JWPlayerEventHandler;
+import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerInfos.State;
 
 public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	
@@ -30,12 +33,14 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	private final String playerDivId;
 	
 	private final static String idPrefix = "jwplayerID_";	
-	private final String playerId;
+	private final static RegExp sizeRegExp = RegExp.compile("([%0-9]+)");
 	
 	private boolean playerLoaded = false;
 	private static boolean scriptLoaded = false;
 	private static ArrayList<JWPlayer> _waitingPlayers = new ArrayList<JWPlayer>();
-	private JavaScriptObject jwplayer;
+
+	public JavaScriptObject jwplayer;
+	public final String playerId;
 
 	public static String cloudKey = "4+R8PsscEeO69iIACooLPQ"; // JWPlayer inc. key
 	
@@ -86,6 +91,10 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		return (options.playlist != null && options.playlist.length > 0 ) || (options.file != null && options.file != "") ;
 	}
 	
+	private boolean isReady() {
+		return playerLoaded && _getState() != null;
+	}
+	
 	protected void onLoad() {
 	    if (scriptLoaded) {
 	    	initPlayer();
@@ -93,6 +102,17 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	    	_waitingPlayers.add(this);
 	    }
 	    super.onLoad();
+	}
+	
+	protected void onUnload() {
+		// GWT.log("onUnload", null);
+		/*Element firstChild = DOM.getFirstChild(getElement());
+		if (firstChild != null) {
+			getElement().removeChild(DOM.getFirstChild(getElement()));
+		}*/
+		_remove();
+		playerLoaded = false;
+		super.onUnload();
 	}
 	
 	private void initPlayer(){
@@ -104,7 +124,6 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		    	onBeforePlayerLoaded();
 	    		setVisible(true);
 	    		loadPlayer(playerId);
-		    	playerLoaded = true;
 		    	onAfterPlayerLoaded();
 	    	}
 	    	
@@ -133,15 +152,6 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 
 	}
 
-	protected void onUnload() {
-		// GWT.log("onUnload", null);
-		Element firstChild = DOM.getFirstChild(getElement());
-		if (firstChild != null) {
-			getElement().removeChild(DOM.getFirstChild(getElement()));
-		}
-		playerLoaded = false;
-		super.onUnload();
-	}
 	/*
 	public void loadPlaylist(String[] playlist) {
 		if (playerLoaded) {
@@ -155,22 +165,21 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 */
 	public void loadURL(String url) {
-		if (playerLoaded) {
-			_loadURL(url);
+		options.file = url;
+		if ( playerLoaded ) {
+			//_loadURL(url);
+			loadPlayer(playerId);
 			setVisible(true);
-		} else {
-			options.file = url;
-			if (scriptLoaded)
-				initPlayer();
+		} else if (scriptLoaded) {
+			initPlayer();
 		}
 	}
 	
 	public void stop() {
 		if (playerLoaded) {
 			_stop();
-		} else {
-			options.file = null;
 		}
+		options.file = null;
 	}
 	
 	public void pause() {
@@ -179,42 +188,50 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		}
 	}
 	
-	public void setHeight(int height) {
+	public void play() {
+		if (playerLoaded) {
+			_play();
+		}
+	}
+	
+	public String currentURL() {
+		return this.options.file;
+	}
+	
+	public void setHeight(String height) {
 		//height = height.trim().toLowerCase();
 		super.setHeight(String.valueOf(height)); // Width validation
-		GWT.log(getHeight() + " =? " + height, null);
 
-		//if (getHeight().equals(height)) {
-			// throw new RuntimeException("CSS widths should not be negative");
-			options.height = height;
+		MatchResult matcher = sizeRegExp.exec(height);
+		if (matcher != null) {
+			options.height = matcher.getGroup(0);
 			if (playerLoaded) {
 				_applySize();
 			}
-		//}
+		}
 	}
 
-	public void setWidth(int width) {
+	public void setWidth(String width) {
 		//width = width.trim().toLowerCase();
 		super.setWidth(String.valueOf(width)); // Width validation
-		GWT.log(getWidth() + " =? " + width, null);
-
-		//if (getWidth().equals(width)) {
-			// throw new RuntimeException("CSS widths should not be negative");
-			options.width = width;
+		
+		MatchResult matcher = sizeRegExp.exec(width);
+		if (matcher != null) {
+			options.width = matcher.getGroup(0);
 			if (playerLoaded) {
 				_applySize();
 			}
-		//}
+		}
 	}
 
-	public int getWidth() {
+	public String getWidth() {
 		if (playerLoaded) {
 			options.width = _getWidth();
 		}
 		return options.width;
 	}
 
-	public int getHeight() {
+	public String getHeight() {
 		if (playerLoaded) {
 			options.height = _getHeight();
 		}
@@ -233,16 +250,21 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 	
 	public void onBuffer(JWPlayerState state) {
-		logger.log(Level.FINE , "JWPlayer buffer from "+ state.getOldState());
+		logger.log(Level.FINE , "JWPlayer Buffer from "+ state.getOldState());
 		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onError(String message) {
-		logger.log(Level.FINE , "JWPlayer Error from "+ message);
+		logger.log(Level.FINE , "JWPlayer Error from "+ message.toString());
 	}
 	
 	public void onReady() {
-		logger.log(Level.FINE , "JWPlayer Ready");
+		logger.log(Level.FINE , "JWPlayer Ready to play : " + options.file);
+		playerLoaded = true;
+		if (options.file != null) {
+			//loadURL(options.file);
+			_play();
+		}
 	}
 	
 	public void onComplete() {
@@ -254,21 +276,25 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 	
 	public void onPlayerMediaMeta(JWPlayerMediaMeta meta) {
-		logger.log(Level.FINE , "JWPlayer PlayerMediaMeta from "+ meta);
+		logger.log(Level.FINE , "JWPlayer PlayerMediaMeta : { bandwidth: "+meta.getBandwidth()+" , currentLevel: "+meta.getCurrentLevel()+", droppedFrames: "+meta.getDroppedFrames()+", width:"+meta.getMediaWidth()+" }" );
+		fireEvent(new JWPlayerEvent(new JWPlayerStateImpl("PLAYING","PLAYING"), meta));
 	}
 
 	/**************** NATIVE WRAPPER *******************/
+	
+	public native JavaScriptObject player() /*-{
+		var id = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::playerId;
+		return $wnd.jwplayer(id);
+	}-*/;
 	
 	private native void loadPlayer(String id) /*-{
 		var jwplayerGWT = this;
 		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerOptions::toJS()();
 		options.events = {
 	        onPause: function(state) { 
-	        	debugger;
 	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onPause(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
 	        },
 	        onError: function(message) { 
-	        	debugger;
 	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onError(Ljava/lang/String;)(message);
 	        },
 	        onIdle: function(state) { 
@@ -292,11 +318,11 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 				}
 	        }
 	    };
-		var player = jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
 		
 		// autoplay
-		if (jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::hasSomethingToPlay()() ) {
-			player.play();
+		if (this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::hasSomethingToPlay()() ) {
+			$wnd.jwplayer(id).play(true);
 		}
 	}-*/;
 
@@ -309,9 +335,14 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}-*/;
 	
 	private native void _loadURL(String url) /*-{
-		
-		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.load([url]);
+		//console.log('=loading=>'+url+'<='); 
+		var source = ""+url;
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.load([{file: source}]);
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);
+		//var pl = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getPlaylist();
+		//console.log('=direct=>');
+		//console.log(pl[0]);
+		//console.log(this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer);
 	}-*/;
 	private native void _stop() /*-{
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.stop();
@@ -319,25 +350,36 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	private native void _pause() /*-{
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.pause(true);
 	}-*/;
-	private native void play() /*-{
-	
+	private native void _play() /*-{
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);
 	}-*/;
 	
+	/*
+	 * Being the reverse of the setup() call, this call will remove a JW Player from the page. 
+	 * It ensures the player stops playback, the DOM is re-set to its original state and all 
+	 * event listeners and timers are cleaned up.
+	 * 
+	 */
+	private native void _remove() /*-{
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.remove();
+	}-*/;
 	private native void _applySize() /*-{
 		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerOptions::toJS()();
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.resize(options.width, options.height);
 	}-*/;
 	
-	private native int _getWidth() /*-{
-		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getWidth();
+	private native String _getWidth() /*-{
+		return this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getWidth();
 	}-*/;
 
-	private native int _getHeight() /*-{
-		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getHeight();
+	private native String _getHeight() /*-{
+		return this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getHeight();
 	}-*/;
 
-
+	private native String _getState() /*-{
+		return this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getState();
+	}-*/;
+	
 	@Override
 	public HandlerRegistration addJWPlayerEventHandler(
 			JWPlayerEventHandler handler) {
