@@ -5,21 +5,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.ScriptInjector;
-import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerEvent.JWPlayerEventHandler;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerInfos.State;
+import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions;
+import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource;
+import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerPlaylistSourceJso;
 
 public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	
@@ -88,7 +90,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 
 	private boolean hasSomethingToPlay() {
-		return (options.playlist != null && options.playlist.length > 0 ) || (options.file != null && options.file != "") ;
+		return (options.playlist != null && !options.playlist.isEmpty() ) || (options.file != null && options.file != "") ;
 	}
 	
 	private boolean isReady() {
@@ -164,6 +166,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		}
 	}
 */
+	/* OLD direct 
 	public void loadURL(String url) {
 		options.file = url;
 		if ( playerLoaded ) {
@@ -174,6 +177,30 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 			initPlayer();
 		}
 	}
+	*/
+	
+	public void loadURL(String url) {
+		options.file = url;
+		if ( playerLoaded ) {
+			//_loadURL(url);
+			loadPlayer(playerId);
+			setVisible(true);
+		} else if (scriptLoaded) {
+			initPlayer();
+		}
+	}
+	
+	public void loadSources(ArrayList<JWPlayerPlaylistSource> sources) {
+		options.playlist= null;// = sources;
+		if ( playerLoaded ) {
+			//_loadURL(url);
+			loadPlayer(playerId);
+			setVisible(true);
+		} else if (scriptLoaded) {
+			initPlayer();
+		}
+	}
+	
 	
 	public void stop() {
 		if (playerLoaded) {
@@ -261,10 +288,10 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	public void onReady() {
 		logger.log(Level.FINE , "JWPlayer Ready to play : " + options.file);
 		playerLoaded = true;
-		if (options.file != null) {
+		/*if (options.file != null) {
 			//loadURL(options.file);
 			_play();
-		}
+		}*/
 	}
 	
 	public void onComplete() {
@@ -289,7 +316,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	
 	private native void loadPlayer(String id) /*-{
 		var jwplayerGWT = this;
-		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerOptions::toJS()();
+		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::toJS()();
 		options.events = {
 	        onPause: function(state) { 
 	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onPause(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
@@ -318,6 +345,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 				}
 	        }
 	    };
+	    	    
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
 		
 		// autoplay
@@ -333,7 +361,16 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	private native String getCloudSrc() /*-{
 		return "http://jwpsrv.com/library/" + @fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::cloudKey + ".js";
 	}-*/;
-	
+
+	private native void _loadSources(JsArray<JWPlayerPlaylistSourceJso> plsources) /*-{
+		//console.log('=loading=>'+url+'<='); 
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.load([{sources: plsources}]);
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);
+		//var pl = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getPlaylist();
+		//console.log('=direct=>');
+		//console.log(pl[0]);
+		//console.log(this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer);
+	}-*/;
 	private native void _loadURL(String url) /*-{
 		//console.log('=loading=>'+url+'<='); 
 		var source = ""+url;
@@ -364,7 +401,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.remove();
 	}-*/;
 	private native void _applySize() /*-{
-		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerOptions::toJS()();
+		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::toJS()();
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.resize(options.width, options.height);
 	}-*/;
 	

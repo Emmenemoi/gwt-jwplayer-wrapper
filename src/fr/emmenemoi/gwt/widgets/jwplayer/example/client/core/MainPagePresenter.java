@@ -25,11 +25,15 @@ public class MainPagePresenter extends
 
 		HasClickHandlers getSendClickHandlers();
 
+		HasClickHandlers getSourcesClickHandlers();
+
 		void resetAndFocus();
 
 		void setError(String errorText);
 		
 		void playURL();
+		
+		void playSources();
 	}
 
 	@ProxyStandard
@@ -60,6 +64,14 @@ public class MainPagePresenter extends
 					@Override
 					public void onClick(ClickEvent event) {
 						getView().playURL();
+					}
+				}));
+		
+		registerHandler(getView().getSourcesClickHandlers().addClickHandler(
+				new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						getView().playSources();
 					}
 				}));
 	}
