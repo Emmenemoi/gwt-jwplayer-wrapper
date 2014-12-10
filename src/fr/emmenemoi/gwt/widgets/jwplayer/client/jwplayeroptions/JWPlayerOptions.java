@@ -30,7 +30,7 @@ public class JWPlayerOptions {
 	}-*/;
 	
 	public native JavaScriptObject toJS() /*-{
-				
+		
 	    var jsArray = {	width:			this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::width,
 	    				height:			this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::height,
 	    				primary:		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::primary,
@@ -41,9 +41,15 @@ public class JWPlayerOptions {
 	    				rtmp:	{
 	    					bufferlength: this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::bufferlength
 	    					}
-	    				};  
-	     if (this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::playlist != null) {
-	     	jsArray.playlist = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::playlist;
+	    				};  	    				
+	   	 var playlist = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::playlist;
+	     if ( playlist != null && !playlist.@java.util.ArrayList::isEmpty()() ) {
+	     	var list = [];
+	     	for (var i=0 ; i < playlist.@java.util.ArrayList::size()() ; i++ ) {
+	     		var source = playlist.@java.util.ArrayList::get(I)(i);
+	     		list[list.length] = source.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource::toJS()() ;
+	     	}
+	     	jsArray.playlist = [{sources : list}];
 	     } else {
 	     	jsArray.file = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::file ;
 	     }
@@ -53,6 +59,7 @@ public class JWPlayerOptions {
 	
 	public interface JWPlayerPlaylistSource {
 		String 	getFile();	
+		JavaScriptObject toJS();
 	}
 
 }

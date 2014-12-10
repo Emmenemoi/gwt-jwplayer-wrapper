@@ -21,7 +21,6 @@ import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerEvent.JWPlayerEventHandl
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerInfos.State;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource;
-import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerPlaylistSourceJso;
 
 public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	
@@ -191,7 +190,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 	
 	public void loadSources(ArrayList<JWPlayerPlaylistSource> sources) {
-		options.playlist= null;// = sources;
+		options.playlist = sources;
 		if ( playerLoaded ) {
 			//_loadURL(url);
 			loadPlayer(playerId);
@@ -362,7 +361,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		return "http://jwpsrv.com/library/" + @fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::cloudKey + ".js";
 	}-*/;
 
-	private native void _loadSources(JsArray<JWPlayerPlaylistSourceJso> plsources) /*-{
+	private native void _loadSources(JWPlayerPlaylistSource[] plsources) /*-{
 		//console.log('=loading=>'+url+'<='); 
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.load([{sources: plsources}]);
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);

@@ -51,13 +51,13 @@ public class MainPageView extends ViewImpl implements MainPagePresenter.MyView {
 
 		// We can add style names to widgets
 		sendButton.addStyleName("sendButton");
-		sourcesButton.addStyleName("sendButton");
+		sourcesButton.addStyleName("sourceButton");
 
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
 		panel.add(nameField, "nameFieldContainer");
 		panel.add(sendButton, "sendButtonContainer");
-		panel.add(sendButton, "sourcesButtonContainer");
+		panel.add(sourcesButton, "sourcesButtonContainer");
 		panel.add(errorLabel, "errorLabelContainer");
 		panel.add(player, "playerContainer");
 	}
@@ -101,13 +101,16 @@ public class MainPageView extends ViewImpl implements MainPagePresenter.MyView {
 
 	@Override
 	public void playSources() {
-		ArrayList<JWPlayerPlaylistSource> sources = new ArrayList<JWPlayerPlaylistSource>();
 		
-		JWPlayerPlaylistSourceImpl srcRtmp = new JWPlayerPlaylistSourceImpl(nameField.getValue().replace("http", "rtmp").replace("/playlist.m3u8", ""));
+		ArrayList<JWPlayerPlaylistSource> sources = new ArrayList<JWPlayerPlaylistSource>();
+		String url = nameField.getValue();
+		url = url.replace("http", "rtmp");
+		url = url.replace("/playlist.m3u8", "");
+		JWPlayerPlaylistSourceImpl srcRtmp = new JWPlayerPlaylistSourceImpl(url);
 		sources.add(srcRtmp);
 		JWPlayerPlaylistSourceImpl src = new JWPlayerPlaylistSourceImpl(nameField.getValue());
 		sources.add(src);
-
 		player.loadSources( sources );
+		
 	}
 }

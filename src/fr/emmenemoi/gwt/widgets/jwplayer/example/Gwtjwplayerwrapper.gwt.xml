@@ -27,4 +27,6 @@
 	<define-configuration-property name='gin.ginjector' is-multi-valued='false' />
 	<set-configuration-property name='gin.ginjector' value='fr.emmenemoi.gwt.widgets.jwplayer.example.client.gin.ClientGinjector' />
 
+	<add-linker name="xsiframe"/>
+
 </module>
