@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerEvent.JWPlayerEventHandler;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerInfos.State;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions;
+import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerPlaylistSourceImpl;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource;
 
 public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
@@ -43,7 +44,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	public JavaScriptObject jwplayer;
 	public final String playerId;
 
-	public static String cloudKey = "4+R8PsscEeO69iIACooLPQ"; // JWPlayer inc. key
+	public static String cloudKey = "5V3tOP97EeK2SxIxOUCPzg"; // JWPlayer inc. key
 	
 	public JWPlayer() {
 		this(new JWPlayerOptions());
@@ -89,7 +90,9 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 
 	private boolean hasSomethingToPlay() {
-		return (options.playlist != null && !options.playlist.isEmpty() ) || (options.file != null && options.file != "") ;
+		return (options.playlist != null && !options.playlist.isEmpty() ) || 
+			   (options.sources != null && !options.sources.isEmpty() ) || 
+			   (options.file != null && options.file != "") ;
 	}
 	
 	private boolean isReady() {
@@ -180,6 +183,8 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	
 	public void loadURL(String url) {
 		options.file = url;
+		options.playlist = null;
+		options.sources = null; 
 		if ( playerLoaded ) {
 			//_loadURL(url);
 			loadPlayer(playerId);
@@ -190,9 +195,32 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 	
 	public void loadSources(ArrayList<JWPlayerPlaylistSource> sources) {
-		options.playlist = sources;
+		options.sources = sources;
+		options.file = null;
+		options.playlist = null;
 		if ( playerLoaded ) {
 			//_loadURL(url);
+			loadPlayer(playerId);
+			setVisible(true);
+		} else if (scriptLoaded) {
+			initPlayer();
+		}
+	}
+	
+	public void setFile(String url) {
+		options.file = url;
+	}
+	
+	public void setSources(ArrayList<JWPlayerPlaylistSource> sources) {
+		options.sources = sources;
+	}
+	
+	public void setPlaylist(ArrayList<JWPlayerPlaylistSource> playlist) {
+		options.playlist = playlist;
+	}
+	
+	public void loadTracks() {
+		if ( playerLoaded ) {
 			loadPlayer(playerId);
 			setVisible(true);
 		} else if (scriptLoaded) {
@@ -316,6 +344,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	private native void loadPlayer(String id) /*-{
 		var jwplayerGWT = this;
 		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::toJS()();
+		
 		options.events = {
 	        onPause: function(state) { 
 	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onPause(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
@@ -344,13 +373,17 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 				}
 	        }
 	    };
-	    	    
+	   
+	    console.log("options: " + JSON.stringify(options) );
+	    
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
 		
-		// autoplay
-		if (this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::hasSomethingToPlay()() ) {
-			$wnd.jwplayer(id).play(true);
-		}
+		console.log(options);
+		
+		// autoplay vs options.autostart ??
+		//if (this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::hasSomethingToPlay()() ) {
+		//	$wnd.jwplayer(id).play(true);
+		//}
 	}-*/;
 
 	private native String getAccountKey() /*-{
@@ -362,7 +395,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}-*/;
 
 	private native void _loadSources(JWPlayerPlaylistSource[] plsources) /*-{
-		//console.log('=loading=>'+url+'<='); 
+		//console.log('=loading sources=>'+JSON.stringify(plsources)+'<='); 
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.load([{sources: plsources}]);
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.play(true);
 		//var pl = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getPlaylist();

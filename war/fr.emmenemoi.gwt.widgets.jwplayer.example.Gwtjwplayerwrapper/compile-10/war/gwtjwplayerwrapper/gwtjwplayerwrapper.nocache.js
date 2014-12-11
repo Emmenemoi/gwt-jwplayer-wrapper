@@ -264,7 +264,7 @@ function gwtjwplayerwrapper(){
     }
     var strongName;
     try {
-      strongName = '53AF0D6793406DB04CA869E0C3D6AF8B';
+      strongName = 'B8A27089C697AB9AE2494A07F3055CED';
       var idx = strongName.indexOf(':');
       if (idx != -1) {
         softPermutationId = parseInt(strongName.substring(idx + 1), 10);

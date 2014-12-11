@@ -39,13 +39,15 @@ public class MainPageView extends ViewImpl implements MainPagePresenter.MyView {
 	private final Button sourcesButton;
 	private final JWPlayer player;
 
+	static boolean isAdaptativeStream = false;
+	
 	@Inject
 	public MainPageView() {
 
 		sendButton = new Button("Play URL");
 		sourcesButton = new Button("Play Sources");
 		nameField = new TextBox();
-		nameField.setText("http://content.jwplatform.com/videos/HkauGhRi-640.mp4");
+		nameField.setText("http://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov/playlist.m3u8");
 		errorLabel = new Label();
 		player = new JWPlayer();
 
@@ -102,15 +104,43 @@ public class MainPageView extends ViewImpl implements MainPagePresenter.MyView {
 	@Override
 	public void playSources() {
 		
-		ArrayList<JWPlayerPlaylistSource> sources = new ArrayList<JWPlayerPlaylistSource>();
+		ArrayList<JWPlayerPlaylistSource> RTMPsources = new ArrayList<JWPlayerPlaylistSource>();;
+		ArrayList<JWPlayerPlaylistSource> HLSsources = new ArrayList<JWPlayerPlaylistSource>();;
+
 		String url = nameField.getValue();
-		url = url.replace("http", "rtmp");
-		url = url.replace("/playlist.m3u8", "");
-		JWPlayerPlaylistSourceImpl srcRtmp = new JWPlayerPlaylistSourceImpl(url);
-		sources.add(srcRtmp);
-		JWPlayerPlaylistSourceImpl src = new JWPlayerPlaylistSourceImpl(nameField.getValue());
-		sources.add(src);
-		player.loadSources( sources );
+		String rtmp;
+		if ( !isAdaptativeStream && !url.startsWith("rtmp") ) {
+			rtmp = url.replace("http", "rtmp");
+		} else {
+			rtmp = url;
+		}
+
+		rtmp = rtmp.replace("/playlist.m3u8", "");
+		if (isAdaptativeStream) {
+			rtmp = rtmp.replace("mp4", "smil").replace("mov", "smil");
+			rtmp = rtmp + "/jwplayer.smil";
+			
+			url = url.replace("mp4", "smil").replace("mov", "smil");
+		}
+						
+		JWPlayerPlaylistSourceImpl srcRtmp = new JWPlayerPlaylistSourceImpl(rtmp);
+		if (isAdaptativeStream) {
+			RTMPsources.add(srcRtmp);
+		} else {
+			HLSsources.add(srcRtmp);
+		}
+		JWPlayerPlaylistSourceImpl src = new JWPlayerPlaylistSourceImpl(url);
+		HLSsources.add(src);
+		
+		
+		player.setFile(url);;
+		//player.setSources(HLSsources);
+//		player.setPlaylist(RTMPsources);
+		if ( !HLSsources.isEmpty() ) {
+			player.setPlaylist(HLSsources);
+		}
+		player.loadTracks();
+		
 		
 	}
 }

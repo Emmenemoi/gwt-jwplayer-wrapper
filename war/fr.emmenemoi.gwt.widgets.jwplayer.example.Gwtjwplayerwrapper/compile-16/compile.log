@@ -8,5 +8,5 @@ Compiling module fr.emmenemoi.gwt.widgets.jwplayer.example.Gwtjwplayerwrapper
    Compile of permutations succeeded
 Linking into /home/seb/git/gwt-jwplayer-wrapper/war/fr.emmenemoi.gwt.widgets.jwplayer.example.Gwtjwplayerwrapper/compile-16/war/gwtjwplayerwrapper; Writing extras to /home/seb/git/gwt-jwplayer-wrapper/war/fr.emmenemoi.gwt.widgets.jwplayer.example.Gwtjwplayerwrapper/compile-16/extras/gwtjwplayerwrapper
    Link succeeded
-   Compilation succeeded -- 1.135s
-Compile completed in 1182 ms
+   Compilation succeeded -- 0.756s
+Compile completed in 790 ms

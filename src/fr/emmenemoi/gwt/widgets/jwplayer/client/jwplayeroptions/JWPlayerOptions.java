@@ -17,6 +17,7 @@ public class JWPlayerOptions {
 	public double bufferlength = DEFAULT_BUFFERLENGTH;
 	public String file;
 	public ArrayList<JWPlayerPlaylistSource> playlist;
+	public ArrayList<JWPlayerPlaylistSource> sources;
 	public String playlistFile = "";
 	public String fallbackContent = DEFAULT_FALLBACK;
 	public boolean fallback = true;
@@ -43,14 +44,24 @@ public class JWPlayerOptions {
 	    					}
 	    				};  	    				
 	   	 var playlist = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::playlist;
-	     if ( playlist != null && !playlist.@java.util.ArrayList::isEmpty()() ) {
+	   	 var sources = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::sources;
+	     if ( typeof playlist != 'undefined' && !playlist.@java.util.ArrayList::isEmpty()() ) {
 	     	var list = [];
 	     	for (var i=0 ; i < playlist.@java.util.ArrayList::size()() ; i++ ) {
 	     		var source = playlist.@java.util.ArrayList::get(I)(i);
 	     		list[list.length] = source.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource::toJS()() ;
 	     	}
-	     	jsArray.playlist = [{sources : list}];
-	     } else {
+	     	jsArray.playlist = [{ "sources" : list }];
+	     }
+	     if ( typeof sources != 'undefined' && !sources.@java.util.ArrayList::isEmpty()() ) {
+	     	jsArray.sources = [];
+	     	for (var i=0 ; i < sources.@java.util.ArrayList::size()() ; i++ ) {
+	     		var source = sources.@java.util.ArrayList::get(I)(i);
+	     		jsArray.sources[jsArray.sources.length] = source.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource::toJS()() ;
+	     	}
+	     } 
+
+ 		 if (  typeof jsArray.sources == 'undefined' && typeof jsArray.playlist == 'undefined') {
 	     	jsArray.file = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::file ;
 	     }
 	     
