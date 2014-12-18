@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.dom.client.Element;
@@ -18,9 +17,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerEvent.JWPlayerEventHandler;
-import fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayerInfos.State;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions;
-import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerPlaylistSourceImpl;
 import fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions.JWPlayerPlaylistSource;
 
 public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
@@ -75,8 +72,8 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		playerDivId = divPrefix + count;
 	    ++count;
 	    Element element = DOM.createElement("div");
-	    DOM.setElementProperty(element, "id", playerDivId);
-
+	    //DOM.setElementProperty(element, "id", playerDivId);
+	    element.setAttribute("id", playerDivId);
 	    // add new div which will be replaced by SWFObject
 	    setElement(element);
 	}
@@ -228,6 +225,16 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 		}
 	}
 	
+	public boolean isFlashRenderMode() {
+		String renderMode;
+		if ( playerLoaded ) {
+			renderMode = this._getRenderingMode();
+		} else {
+			renderMode = options.primary;
+		}
+		
+		return renderMode.equalsIgnoreCase("flash");
+	}
 	
 	public void stop() {
 		if (playerLoaded) {
@@ -294,26 +301,26 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	
 	/*************** EVENTS WRAPPER *******************/
 	public void onPause(JWPlayerState state) {
-		logger.log(Level.FINE , "JWPlayer Pause from "+ state.getOldState());
+		logger.log(Level.FINER , "JWPlayer Pause from "+ state.getOldState());
 		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onIdle(JWPlayerState state) {
-		logger.log(Level.FINE , "JWPlayer Idle from "+ state.getOldState());
+		logger.log(Level.FINER , "JWPlayer Idle from "+ state.getOldState());
 		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onBuffer(JWPlayerState state) {
-		logger.log(Level.FINE , "JWPlayer Buffer from "+ state.getOldState());
+		logger.log(Level.FINER , "JWPlayer Buffer from "+ state.getOldState());
 		fireEvent(new JWPlayerEvent(state));
 	}
 	
 	public void onError(String message) {
-		logger.log(Level.FINE , "JWPlayer Error from "+ message.toString());
+		logger.log(Level.FINER , "JWPlayer Error from "+ message.toString());
 	}
 	
 	public void onReady() {
-		logger.log(Level.FINE , "JWPlayer Ready to play : " + options.file);
+		logger.log(Level.FINER , "JWPlayer Ready to play : " + options.file);
 		playerLoaded = true;
 		/*if (options.file != null) {
 			//loadURL(options.file);
@@ -322,15 +329,15 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}
 	
 	public void onComplete() {
-		logger.log(Level.FINE , "JWPlayer complete");
+		logger.log(Level.FINER , "JWPlayer complete");
 	}
 	
 	public void onMetadata(JsArrayString meta) {
-		logger.log(Level.FINE , "JWPlayer Metadata from "+ meta);
+		logger.log(Level.FINEST , "JWPlayer Metadata from "+ meta);
 	}
 	
 	public void onPlayerMediaMeta(JWPlayerMediaMeta meta) {
-		logger.log(Level.FINE , "JWPlayer PlayerMediaMeta : { bandwidth: "+meta.getBandwidth()+" , currentLevel: "+meta.getCurrentLevel()+", droppedFrames: "+meta.getDroppedFrames()+", width:"+meta.getMediaWidth()+" }" );
+		logger.log(Level.FINEST , "JWPlayer PlayerMediaMeta : { bandwidth: "+meta.getBandwidth()+" , currentLevel: "+meta.getCurrentLevel()+", droppedFrames: "+meta.getDroppedFrames()+", width:"+meta.getMediaWidth()+" }" );
 		fireEvent(new JWPlayerEvent(new JWPlayerStateImpl("PLAYING","PLAYING"), meta));
 	}
 
@@ -374,11 +381,11 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	        }
 	    };
 	   
-	    console.log("options: " + JSON.stringify(options) );
+	    //console.log("options: " + JSON.stringify(options) );
 	    
 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
 		
-		console.log(options);
+		//console.log(options);
 		
 		// autoplay vs options.autostart ??
 		//if (this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::hasSomethingToPlay()() ) {
@@ -447,6 +454,10 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 
 	private native String _getState() /*-{
 		return this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getState();
+	}-*/;
+	
+	private native String _getRenderingMode() /*-{
+		return this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getRenderingMode();
 	}-*/;
 	
 	@Override

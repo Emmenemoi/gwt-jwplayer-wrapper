@@ -32,7 +32,7 @@ public class JWPlayerOptions {
 	
 	public native JavaScriptObject toJS() /*-{
 		
-	    var jsArray = {	width:			this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::width,
+	     var jsArray = {	width:			this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::width,
 	    				height:			this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::height,
 	    				primary:		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::primary,
 	    				fallbackContent:this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::fallbackContent,
