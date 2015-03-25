@@ -233,7 +233,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 			renderMode = options.primary;
 		}
 		
-		return renderMode.equalsIgnoreCase("flash");
+		return renderMode.equalsIgnoreCase("flash") && this._flashAvailable();
 	}
 	
 	public void stop() {
@@ -459,6 +459,24 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	private native String _getRenderingMode() /*-{
 		return this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.getRenderingMode();
 	}-*/;
+	
+	private native boolean _flashAvailable() /*-{
+		var hasFlash = false;
+		try {
+		  var fo = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+		  if (fo) {
+		    hasFlash = true;
+		  }
+		} catch (e) {
+		  if (navigator.mimeTypes
+		        && navigator.mimeTypes['application/x-shockwave-flash'] != undefined
+		        && navigator.mimeTypes['application/x-shockwave-flash'].enabledPlugin) {
+		    hasFlash = true;
+		  }
+		}
+		return hasFlash;
+	}-*/;
+
 	
 	@Override
 	public HandlerRegistration addJWPlayerEventHandler(
