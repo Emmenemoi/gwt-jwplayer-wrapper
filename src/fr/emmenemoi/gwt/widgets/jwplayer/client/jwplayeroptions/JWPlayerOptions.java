@@ -15,6 +15,7 @@ public class JWPlayerOptions {
 	public String width = DEFAULT_WIDTH;
 	public String height = DEFAULT_HEIGHT;
 	public double bufferlength = DEFAULT_BUFFERLENGTH;
+	public boolean androidhls = false;
 	public String file;
 	public ArrayList<JWPlayerPlaylistSource> playlist;
 	public ArrayList<JWPlayerPlaylistSource> sources;
@@ -39,6 +40,7 @@ public class JWPlayerOptions {
 	    				fallback: 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::fallback,
 	    				autostart: 		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::autostart,
 	    				bufferlength: 	this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::bufferlength,
+	    				androidhls: 	this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::androidhls,
 	    				rtmp:	{
 	    					bufferlength: this.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::bufferlength
 	    					}
