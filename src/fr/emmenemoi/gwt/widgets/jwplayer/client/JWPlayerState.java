@@ -11,8 +11,8 @@ class JWPlayerStateJso extends JavaScriptObject implements JWPlayerState {
 	// Overlay types always have protected, zero-arg ctors
 	protected JWPlayerStateJso() { }
 
-	public final native String getOldState() /*-{ return this.oldstate; }-*/;
-	public final native String getNewState() /*-{ return this.newstate; }-*/;
+	public final native String getOldState() /*-{ return this.oldstate == undefined ? this.oldstate : this.oldstate.toUpperCase(); }-*/;
+	public final native String getNewState() /*-{ return this.newstate == undefined ? this.newstate : this.newstate.toUpperCase(); }-*/;
 }
 
 /** Any number of non-JSO types may implement the WebcamStreamEvent interface. */
@@ -26,11 +26,11 @@ class JWPlayerStateImpl implements JWPlayerState {
   }
   
   public String getOldState() {
-    return this.oldstate;
+    return this.oldstate == null ? this.oldstate : this.oldstate.toUpperCase();
   }
   
   public String getNewState() {
-    return this.newstate;
+    return this.newstate == null ? this.newstate : this.newstate.toUpperCase();
   }
   
   public String toString() {

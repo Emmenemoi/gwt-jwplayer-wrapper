@@ -42,6 +42,8 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	public final String playerId;
 
 	public static String cloudKey = "5V3tOP97EeK2SxIxOUCPzg"; // JWPlayer inc. key
+
+	public static String cloudSource = "//content.jwplatform.com/libraries/DbXZPMBQ.js"; // JWPlayer inc license
 	
 	public JWPlayer() {
 		this(new JWPlayerOptions());
@@ -351,40 +353,39 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	private native void loadPlayer(String id) /*-{
 		var jwplayerGWT = this;
 		var options = this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::options.@fr.emmenemoi.gwt.widgets.jwplayer.client.jwplayeroptions.JWPlayerOptions::toJS()();
+		   
+	    //console.log("options: " + JSON.stringify(options) );
+	    
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
 		
-		options.events = {
-	        onPause: function(state) { 
-	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onPause(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
-	        },
-	        onError: function(message) { 
-	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onError(Ljava/lang/String;)(message);
-	        },
-	        onIdle: function(state) { 
-	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onIdle(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
-	        },
-	        onReady: function() { 
-	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onReady()();
-	        },
-	        onBuffer: function(state) { 
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('pause', function(state) { 
+        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onPause(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
+        });
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('error', function(message) { 
+        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onError(Ljava/lang/String;)(message);
+        });
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('idle', function(state) {
+	        jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onIdle(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
+		});	
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('ready', function() {
+	        jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onReady()();
+		});
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('buffer', function(state) {
 	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onBuffer(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerState;)(state);
-	        },	        
-	        onComplete: function() { 
+		});
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('complete', function() {
 	        	jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onComplete()();
-	        },
-	        
-	        onMeta: function(event) { 
+		});
+		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer.on('meta', function(event) { 
+        	if (event.metadata != null) {
 	        	if (event.type == "jwplayerMediaMeta") {
 	        		jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onPlayerMediaMeta(Lfr/emmenemoi/gwt/widgets/jwplayer/client/JWPlayerMediaMeta;)(event.metadata);
 	        	} else if ( (event.metadata.type != null && event.metadata.type == 'metadata') || event.metadata.bandwidth != null ) {
 	        		jwplayerGWT.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::onMetadata(Lcom/google/gwt/core/client/JsArrayString;)(event.metadata);
 				}
-	        }
-	    };
-	   
-	    //console.log("options: " + JSON.stringify(options) );
-	    
-		this.@fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::jwplayer = $wnd.jwplayer(id).setup(options);
-		
+        	}
+        });
+	        
 		//console.log(options);
 		
 		// autoplay vs options.autostart ??
@@ -398,7 +399,7 @@ public class JWPlayer extends Widget implements HasJWPlayerEventHandlers {
 	}-*/;
 
 	private native String getCloudSrc() /*-{
-		return "http://jwpsrv.com/library/" + @fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::cloudKey + ".js";
+		return @fr.emmenemoi.gwt.widgets.jwplayer.client.JWPlayer::cloudSource;
 	}-*/;
 
 	private native void _loadSources(JWPlayerPlaylistSource[] plsources) /*-{
